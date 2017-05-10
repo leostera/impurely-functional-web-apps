@@ -1,0 +1,7 @@
+{
+  "name": "fully-functional-web-apps",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Leandro Ostera <leandro@ostera.io>",
+  "license": "BSD-3-Clause"
+}

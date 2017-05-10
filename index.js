@@ -1,6 +1,7 @@
 /*
  * Utils
  */
+
 const log = x => (console.log(x), x)
 const ext = (a, b) => Object.assign({}, a, b)
 
@@ -54,11 +55,30 @@ const render = () => {
 
 const stateLogger = ({state}) => console.log(state)
 
-const incrementLater = ({state, dispatch}) => {
-  if(state.counter % 2 == 0) {
-    setTimeout( _ => {
-      dispatch({ type: "ADD", payload: 1 })
-    }, 1300)
+/* Below is a broken effect that when retriggered will not have the latest
+ * state and will potentially cause undesired side-effects
+
+  const incrementLater = ({state, dispatch}) => {
+    if(state.counter % 2 == 0) {
+      setTimeout( _ => {
+        dispatch({ type: "ADD", payload: 1 })
+      }, 1300)
+    }
+   }
+
+ * a fix for this is to keep a local reference for the _next_ handler
+ * and replace it on every invocation of the effect, to always have the
+ * latest state at hand.
+ */
+const incrementLater = () => {
+  let next
+  return ({state, dispatch}) => {
+    next = dispatch
+    if(state.counter % 2 == 0) {
+      setTimeout( _ => {
+        next({ type: "ADD", payload: 1 })
+      }, 1300)
+    }
   }
 }
 
@@ -84,5 +104,5 @@ app({
   state: initialState,
   action: initialAction,
   reducer,
-  effects: [ render(), stateLogger, alertMeLater ],
+  effects: [ render(), stateLogger, incrementLater() ],
 })
